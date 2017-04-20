@@ -20,12 +20,14 @@ const createListView = name => () =>
 const ItemView = () => System.import('../views/ItemView.vue')
 const UserView = () => System.import('../views/UserView.vue')
 const HomeView = () => System.import('../views/home/Home.vue')
+const ChatView = () => System.import('../views/home/Chat.vue')
 
 
 export default new Router({
   mode: 'history',
   scrollBehavior: () => ({ y: 0 }),
   routes: [
+    { path: '/chat', component: ChatView },
     { path: '/top/:page(\\d+)?', component: createListView('top') },
     { path: '/new/:page(\\d+)?', component: createListView('new') },
     { path: '/show/:page(\\d+)?', component: createListView('show') },
