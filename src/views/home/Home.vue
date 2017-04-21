@@ -39,28 +39,42 @@
             </li>
         </ul>
 
-        <div id="todo-list-example">
-            <input
-                    v-model="newTodoText"
-                    v-on:keyup.enter="addNewTodo"
-                    placeholder="Add a todo"
-            >
-            <ul>
-                <li
-                        is="todo-item"
-                        v-for="(todo, index) in todos"
-                        v-bind:key="todo"
-                        v-bind:title="todo"
-                        v-on:remove="todos.splice(index, 1)"
-                ></li>
-            </ul>
-        </div>
+        <todo/>
+
+        <!--Lam viec voi form-->
+        <input v-model="textModel" placeholder="Edit nao"/>
+        <p>Chu them vao: {{textModel}}</p>
+
+        <input type="checkbox" id="check-box" v-model="checkBox"/>
+        <label for="check-box"> {{checkBox}} </label>
+
+        <hr/>
+        <input type="checkbox" id="jack" value="Chuc" v-model="checkedNames">
+        <label for="jack">Chuc</label>
+        <input type="checkbox" id="john" value="Hien" v-model="checkedNames">
+        <label for="john">Hien</label>
+        <input type="checkbox" id="mike" value="Phuc" v-model="checkedNames">
+        <label for="mike">Phuc</label>
+        <br>
+        <span>Checked names: {{ checkedNames }}</span>
+        <hr/>
+        <select v-model="selected">
+            <option disabled value="">Please select one</option>
+            <option>A</option>
+            <option>B</option>
+            <option>C</option>
+        </select>
+        <span>Selected: {{ selected }}</span>
 
         </div>
 </template>
 
 <script>
+    import Todo from './Todo.vue'
     export default {
+        components:{
+            Todo
+        },
         data() {
             return {
                 x: 99,
@@ -75,6 +89,7 @@
                 answer: 'I cannot give you an answer until you ask a question!',
                 isActive:true,
                 hasError:false,
+                activeClass:{},
                 errorClass:{},
                 activeColor: 'red',
                 fontSize: 30,
@@ -82,7 +97,11 @@
                     'Đồng Hới',
                     'Quảng Bình',
                     'Bắc Trung Bộ'
-                ]
+                ],
+                textModel:'',
+                checkBox:false,
+                checkedNames:[],
+                selected:''
             }
         },
 
