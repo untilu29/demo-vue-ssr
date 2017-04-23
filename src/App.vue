@@ -5,7 +5,7 @@
         <router-link to="/" exact>
           <img class="logo" src="~public/icon.png" alt="logo">
         </router-link>
-        <router-link to="/chat">asd</router-link>
+        <router-link to="/chat">Chat</router-link>
         <router-link to="/top">Top</router-link>
         <router-link to="/new">New</router-link>
         <router-link to="/show">Show</router-link>
@@ -54,7 +54,7 @@ a
     vertical-align middle
     font-weight 300
     letter-spacing .075em
-    margin-right 1.8em
+    margin-right 1.8em!important
     &:hover
       color #fff
     &.router-link-active

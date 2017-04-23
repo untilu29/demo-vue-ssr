@@ -71,6 +71,8 @@
 
 <script>
     import Todo from './Todo.vue'
+    import emailExists from 'email-exists'
+
     export default {
         components:{
             Todo
@@ -122,6 +124,9 @@
                 this.char+=this.x;
                 this.isActive=!this.isActive;
                 this.hasError=!this.hasError;
+                emailExists({ sender: 'darthvader@gmail.com',
+                      recipient: 'lukeskywalker@gmail.com' })
+            .then(console.log)
             }
         },
 
