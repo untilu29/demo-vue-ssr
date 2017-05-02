@@ -71,7 +71,6 @@
 
 <script>
     import Todo from './Todo.vue'
-    import emailExists from 'email-exists'
 
     export default {
         components:{

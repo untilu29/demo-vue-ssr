@@ -33,11 +33,11 @@ Vue.use(GSignInButton)
             }
         },
         methods:{
-            handleEnterUsername(username){
+            handleEnterUsername(token){
                 // let username= this.usernameInput.trim()
-                if (username) {
+                if (token) {
                   
-                    this.$emit('loginSuccess',username);
+                    this.$emit('loginSuccess',token);
                 }
             },
              onSignInSuccess (googleUser) {

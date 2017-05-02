@@ -3,16 +3,17 @@
         <div class="chatArea">
             <ul class="messages"></ul>
         </div>
-        <input class="inputMessage" placeholder="Type here..." @input=" updateTyping" v-model="inputMessage"/>
+        <input class="inputMessage" placeholder="Type here..." @input="updateTyping" v-model="inputMessage"/>
     </li>
 </template>
 <script>
     export default {
-        props: ['socket','name'],
+        props: ['socket','token'],
 
         data(){
             return{
-                username: this.name,
+                name: '',
+                username:'',
                 FADE_TIME: 150, // ms
                 TYPING_TIMER_LENGTH: 400, // ms
                 COLORS: [
@@ -30,13 +31,14 @@
         methods:{
             setUsername() {
                 // If the this.username is valid
-                if (this.username) {
-                    socket.emit('add_user', this.username);
+                if (this.token) {
+                    this.socket.emit('add_user', this.token);
                 }
             },
 
              // Sends a chat message
             sendMessage() {
+                let self=this;
                 let message = this.cleanInput(this.inputMessage);
                 // if there is a non-empty message and a socket connection
                 if (message && this.connected) {
@@ -44,7 +46,7 @@
                     console.log('Vo day send Message Chat');
 
                     // this.addChatMessage({
-                    //     username: this.username,
+                    //     name: self.name,
                     //     message: message
                     // });
                     // tell server to execute 'new message' and send along one parameter
@@ -53,6 +55,7 @@
             },
 
             addParticipantsMessage(data) {
+                this.name=data.name;
                 let message = '';
                 if (data.numUsers === 1) {
                     message += "there's 1 participant";
@@ -77,9 +80,11 @@
                     $typingMessages.remove();
                 }
 
+                let $avatarDiv = $("<img class='avatar'/>").attr("src",data.avatar);
+
                 let $usernameDiv = $('<span class="username"/>')
-                    .text(data.username)
-                    .css('color', this.getusernameColor(data.username));
+                    .text(data.name)
+                    .css('color', this.getusernameColor(data.name));
                 let $messageBodyDiv = $('<span class="messageBody">')
                     .text(data.message);
 
@@ -87,7 +92,9 @@
                 let $messageDiv = $('<li class="message"/>')
                     .data('username', data.username)
                     .addClass(typingClass)
-                    .append($usernameDiv, $messageBodyDiv);
+                    .append($avatarDiv,$usernameDiv, $messageBodyDiv);
+
+                    // console.log($messageDiv);
 
                 this.addMessageElement($messageDiv, options);
             },
@@ -147,15 +154,15 @@
                         this.socket.emit('typing');
                     }
                     this.lastTypingTime = (new Date()).getTime();
-
+                    let self=this;
                     setTimeout(function () {
                         let typingTimer = (new Date()).getTime();
-                        let timeDiff = typingTimer - this.lastTypingTime;
-                        if (timeDiff >= self.TYPING_TIMER_LENGTH && typing) {
-                            socket.emit('stop_typing');
-                            this.typing = false;
+                        let timeDiff = typingTimer - self.lastTypingTime;
+                        if (timeDiff >= self.TYPING_TIMER_LENGTH && self.typing) {
+                            self.socket.emit('stop_typing');
+                            self.typing = false;
                         }
-                    }, this.TYPING_TIMER_LENGTH);
+                    }, self.TYPING_TIMER_LENGTH);
                 }
             },
 
@@ -191,10 +198,10 @@
                 // When the client hits ENTER on their keyboard
 
                 if (event.which === 13) {
-                    if (self.username) {
+                    if (self.token) {
                         self.sendMessage();
                         socket.emit('stop_typing');
-                        this.typing = false;
+                        self.typing = false;
                     } else {
                         self.setUsername();
                     }
@@ -202,48 +209,59 @@
             });
 
             socket.on('login', function (data) {
+                console.log('===========On login');
                 self.connected = true;
                 // Display the welcome message
                 let message = "Welcome to Chat";
                 self.log(message, {
                     prepend: true
                 });
+
                 self.addParticipantsMessage(data);
             });
 
             // Whenever the server emits 'new message', update the chat body
             socket.on('new_message', function (data) {
+                console.log('===========On new message');
                 self.addChatMessage(data);
             });
 
             // Whenever the server emits 'user joined', log it in the chat body
             socket.on('user_joined', function (data) {
-                self.log(data.username + ' joined');
+                console.log('===========On user joined');
+                self.log(data.name + ' joined');
+                self.username=data.name;
                 self.addParticipantsMessage(data);
             });
 
             // Whenever the server emits 'user left', log it in the chat body
             socket.on('user_left', function (data) {
-                self.log(data.username + ' left');
+                console.log('===========On user left'); 
+                self.log(data.name + ' left');
                 self.addParticipantsMessage(data);
                 self.removeChatTyping(data);
             });
 
             // Whenever the server emits 'typing', show the typing message
             socket.on('typing', function (data) {
+                console.log('===========On typing');
+                console.log('Data: ',data);
                 self.addChatTyping(data);
             });
 
             // Whenever the server emits 'stop typing', kill the typing message
             socket.on('stop_typing', function (data) {
+                console.log('===========Stop typing');
                 self.removeChatTyping(data);
             });
 
             socket.on('disconnect', function () {
-                self.log('you have been disthis.connected');
+                console.log('===========On disconnected');
+                self.log('you have been disconnected');
             });
 
             socket.on('reconnect', function () {
+                console.log('===========On reconnect');
                 self.log('you have been rethis.connected');
                 if (this.username) {
                     socket.emit('add_user', this.username);
@@ -251,6 +269,7 @@
             });
 
             socket.on('reconnect_error', function () {
+                console.log('===========On reconnect');
                 self.log('attempt to reconnect has failed');
             });
         }
